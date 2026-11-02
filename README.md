@@ -6,6 +6,8 @@
 
 - `CLAUDE.md` — 規則正本。要改規則請開分支、送 PR，不要直接推 `main`（`main` 有分支保護）。
 - `sync-rules.ps1` — 把正本同步到本機全域 `~/.claude/CLAUDE.md` 的腳本。
+- `cad/templates/` — A3 平縱橫斷面圖說樣板（DWG＋DXF，不含任何案件資料）與產生它的 `cad_template.py`。
+- `cad/plot-styles/` — 出圖圖筆 `A3-圖筆(黑白).ctb`（預設）、`A3-圖筆(全彩).ctb`（有航照或彩色外參才用）。要給 CAD 使用，請複製到 CAD 的列印型式資料夾（中望 ZWCAD 2025：`%APPDATA%\ZWSOFT\ZWCAD\2025\zh-TW\Printstyle`）。
 
 ## 新電腦第一次設定
 
