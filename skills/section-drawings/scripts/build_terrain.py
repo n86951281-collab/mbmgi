@@ -15,7 +15,7 @@ CFG_PATH = os.path.abspath(sys.argv[1])
 CFG = json.load(open(CFG_PATH, encoding="utf-8-sig"))   # 容許記事本存的 BOM
 def cpath(p): return p if os.path.isabs(p) else os.path.join(os.path.dirname(CFG_PATH), p)
 LY = CFG["layers"]; TR = CFG.get("terrain", {})
-STEP = float(TR.get("densify_step", 2.0))       # 等高線沿線加密間距 (m)
+STEP = float(TR.get("densify_step", 1.0))       # 等高線沿線加密間距 (m)
 MAX_EDGE = float(TR.get("max_edge", 40.0))      # 邊長超過此值的三角形視為測量範圍外 (m)
 
 msp = ezdxf.readfile(cpath(CFG["src_dxf"])).modelspace()

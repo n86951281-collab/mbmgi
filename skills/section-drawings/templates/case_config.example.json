@@ -21,11 +21,10 @@
     "skip_blocks": ["POINT", "CPOINT", "N", "NORTH"]
   },
   "terrain": {
-    "densify_step": 2.0,
+    "densify_step": 1.0,
     "max_edge": 40.0,
-    "view_grid_step": 0.25,
-    "view_vertical_exaggeration": 2.0,
-    "view_zoom": 1.6
+    "view_grid_step": 0.1,
+    "view_vertical_exaggeration": 2.0
   },
   "alignment": {
     "dxf": "定線.dxf",
