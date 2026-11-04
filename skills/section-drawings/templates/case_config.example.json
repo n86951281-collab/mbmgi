@@ -1,0 +1,57 @@
+{
+  "case_name": "【案名】",
+  "src_dxf": "測量圖.dxf",
+  "tin_npz": "tin_v1.npz",
+  "alignment_npz": "alignment_v1.npz",
+  "out_dir": "D:\\Claude_工作區\\輸出",
+  "preview_dir": "D:\\Claude_工作區\\暫存\\地形\\preview",
+  "file_prefix": "（桃園）",
+  "version": "v1.0",
+  "title_block": {
+    "agency": "【機關名稱待補】",
+    "agency_en": "【Agency name TBD】",
+    "project": "【工程名稱待補】"
+  },
+  "layers": {
+    "contour_minor": "首曲線圖層名",
+    "contour_major": "計曲線圖層名",
+    "spot_insert_layer": "高程點 INSERT 所在圖層",
+    "features": ["地物圖層 1", "地物圖層 2"],
+    "feature_circles": [],
+    "skip_blocks": ["POINT", "CPOINT", "N", "NORTH"]
+  },
+  "terrain": {
+    "densify_step": 2.0,
+    "max_edge": 40.0,
+    "view_grid_step": 0.25,
+    "view_vertical_exaggeration": 2.0,
+    "view_zoom": 1.6
+  },
+  "alignment": {
+    "dxf": "定線.dxf",
+    "centerline_layer": "中心線1",
+    "bank_right_layer": "右岸線",
+    "bank_left_layer": "左岸線",
+    "spacing": 20.0,
+    "extra_stations": []
+  },
+  "plan": {
+    "center_world": [0.0, 0.0],
+    "center_paper": [111.0, 160.5],
+    "frame": [26.0, 48.0, 196.0, 285.0],
+    "ticks_e": [],
+    "ticks_n": [],
+    "arrow_start": 15.0
+  },
+  "legend": {
+    "layer": "圖例表所在圖層",
+    "box": [0.0, 0.0, 0.0, 0.0],
+    "scale": 4.9,
+    "anchor_paper": [203.0, 285.0],
+    "bank_layers": []
+  },
+  "profile": {
+    "split_at": [120.0]
+  },
+  "has_color_xref": false
+}

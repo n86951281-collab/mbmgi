@@ -7,6 +7,7 @@
 # 它只會覆蓋全域 CLAUDE.md 裡 RULES:BEGIN 與 RULES:END 之間的內容，
 # 標記以外的機器專屬規則（NAS 路徑、檔名前綴等）不動。
 # 覆蓋前會存一份 CLAUDE.md.bak。
+# 倉庫 skills\ 底下的每個 SKILL 也會複製到 ~/.claude/skills\，並附上 cad\plot-styles 的圖筆。
 
 $ErrorActionPreference = 'Stop'
 
@@ -52,16 +53,30 @@ $head = $doc.Substring(0, $i + $begin.Length)
 $tail = $doc.Substring($j)
 $new  = $head + "`r`n`r`n" + $rules.Trim() + "`r`n`r`n" + $tail
 
+Write-Host ""
 if ($new -eq $doc) {
-    Write-Host ""
     Write-Host "規則沒有變動，不需要更新。" -ForegroundColor Green
-    exit 0
+} else {
+    Copy-Item $target "$target.bak" -Force
+    [IO.File]::WriteAllText($target, $new, (New-Object Text.UTF8Encoding($false)))
+    Write-Host "已更新全域 CLAUDE.md（$sha）。" -ForegroundColor Green
+    Write-Host "原檔備份：$target.bak"
 }
 
-Copy-Item $target "$target.bak" -Force
-[IO.File]::WriteAllText($target, $new, (New-Object Text.UTF8Encoding($false)))
+# 4. 同步 SKILL：倉庫 skills\<名稱> 複製到 ~/.claude/skills\<名稱>，並附上圖筆 CTB
+$skillSrc = Join-Path $repo 'skills'
+if (Test-Path $skillSrc) {
+    $skillDst = Join-Path $env:USERPROFILE '.claude\skills'
+    New-Item -ItemType Directory -Force $skillDst | Out-Null
+    foreach ($s in Get-ChildItem $skillSrc -Directory) {
+        $dst = Join-Path $skillDst $s.Name
+        New-Item -ItemType Directory -Force $dst | Out-Null
+        Copy-Item (Join-Path $s.FullName '*') $dst -Recurse -Force
+        $pens = Join-Path $dst 'assets\plot-styles'
+        New-Item -ItemType Directory -Force $pens | Out-Null
+        Copy-Item (Join-Path $repo 'cad\plot-styles\*.ctb') $pens -Force
+        Write-Host "已同步 SKILL：$($s.Name) → $dst" -ForegroundColor Green
+    }
+}
 
-Write-Host ""
-Write-Host "已更新全域 CLAUDE.md（$sha）。" -ForegroundColor Green
-Write-Host "原檔備份：$target.bak"
-Write-Host "請重新開啟 Claude Code，新規則才會生效。"
+Write-Host "請重新開啟 Claude Code，新規則與 SKILL 才會生效。"
