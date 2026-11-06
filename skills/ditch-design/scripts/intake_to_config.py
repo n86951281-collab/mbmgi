@@ -1,6 +1,6 @@
-"""案件條件表 xlsx → ditch_config.json。
+"""案件條件表 xlsx（或網頁表單下載的 JSON）→ ditch_config.json。
 
-用法：python intake_to_config.py <條件表.xlsx> <ditch_config.json 輸出> [--base <既有設定檔>] [--data-dir <輸入檔根目錄>] [--out-dir <交付資料夾>]
+用法：python intake_to_config.py <條件表.xlsx 或 案件條件.json> <ditch_config.json 輸出> [--base <既有設定檔>] [--data-dir <輸入檔根目錄>] [--out-dir <交付資料夾>]
 - 讀「條件表」工作表的「填寫值」欄，依「設定鍵」欄寫入設定檔（點號路徑；「a / b」為一格兩鍵，程式拆值）。
 - 讀「側溝與集水井」工作表（略過備註含「東山街範例」的範例列）→ design.ditches[]、design.wells[]。
 - 讀「停點確認」工作表：「確認結果」有填的停點寫入 stops_confirmed。
@@ -78,7 +78,10 @@ def convert(key, val, cfg, warn):
     if key == "design.ground": setp(cfg, key, s.upper()[:2]); return s.upper()[:2] in ("EG", "SG")
     if key == "sg.draw_eg_line": setp(cfg, key, s.startswith("是")); return True
     if key == "temp_shoring.type / pile_l / pile_sp":
-        setp(cfg, "temp_shoring.type", re.split(r"\s|L\s*=", s)[0])
+        setp(cfg, "temp_shoring.type", re.split(r"\s|L\s*=|，", s)[0])
+        if s.startswith("斜坡"):   # 斜坡開挖不打樁，沒有 L 與間距
+            if "，" in s: setp(cfg, "temp_shoring.note", s.split("，", 1)[1])
+            return True
         m = re.search(r"L\s*=\s*([\d.]+)", s); n = re.search(r"@\s*([\d.]+)", s)
         if m: setp(cfg, "temp_shoring.pile_l", float(m.group(1)))
         if n: setp(cfg, "temp_shoring.pile_sp", float(n.group(1)))
@@ -126,16 +129,25 @@ def convert(key, val, cfg, warn):
     setp(cfg, key, s); return True
 
 
-def read_items(ws, cfg, missing):
-    head = [c.value for c in ws[2]]; ix = {h: i for i, h in enumerate(head)}
-    ditches, wells = [], []
+def items_from_ws(ws):
+    """「側溝與集水井」工作表 → [{表頭: 值}]，略過東山街範例列"""
+    head = [c.value for c in ws[2]]; out = []
     for row in ws.iter_rows(min_row=3, values_only=True):
         if not row or row[0] in (None, ""): continue
-        if "範例" in str(row[ix["備註"]] or ""): continue
-        no, side, kind = str(row[0]).strip(), str(row[1] or "").strip(), str(row[2] or "").strip()
+        r = {h: v for h, v in zip(head, row) if h}
+        if "範例" in str(r.get("備註") or ""): continue
+        out.append(r)
+    return out
+
+
+def read_items(rows, cfg, missing):
+    ditches, wells = [], []
+    for r in rows:
+        no, side, kind = str(r.get("編號") or "").strip(), str(r.get("側別") or "").strip(), str(r.get("種類") or "").strip()
+        if not no: continue
         sk = re.match(r"[A-Za-z]+", side); sk = sk.group(0).upper() if sk else side[:1]
         lr = "right" if "右" in side else "left"
-        f = lambda c: (nums(row[ix[c]]) or [None])[0]
+        f = lambda c: (nums(r.get(c) if r.get(c) is not None else "") or [None])[0]
         if kind == "側溝":
             d = dict(id=no, side=sk, lr=lr, name=f"{sk} 側", start=f("起點樁號 (m)"), end=f("終點樁號 (m)"), W=f("內寬 W (m)"), H=f("內高 H (m)"))
             if d["W"] is None or d["H"] is None: missing.append(("design.ditches[]", f"{no} 內寬／內高", 4))
@@ -152,6 +164,30 @@ def read_items(ws, cfg, missing):
         if lay and "line_layer" not in d: d["line_layer"] = lay
 
 
+def load_input(path):
+    """回傳 (條件 [(設定鍵, 值, 是否必填, 欄位名)], 明細 [{表頭: 值}], 已確認停點 list 或 None)。
+    支援 Excel 條件表（.xlsx）與網頁表單下載的 JSON（.json，form＝ditch-intake）；兩者欄位定義同一份（make_intake_xlsx.ROWS）。"""
+    if path.lower().endswith(".json"):
+        p = json.load(open(path, encoding="utf-8-sig"))
+        if p.get("form") != "ditch-intake": raise SystemExit(f"不是案件條件表單 JSON：{path}")
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "templates"))
+        from make_intake_xlsx import ROWS
+        f = p.get("fields", {})
+        entries = [(r[4], f.get(r[4]), r[5] == "必填", r[1]) for r in ROWS if r[1] is not None]
+        return entries, p.get("items", []), []   # 表單不確認停點：一律從零開始，不可沿用 --base 範本的 stops_confirmed
+    wb = load_workbook(path, data_only=True)
+    ws = wb["條件表"]; head = [c.value for c in ws[2]]; ix = {h: i for i, h in enumerate(head)}
+    entries = []
+    for row in ws.iter_rows(min_row=3, values_only=True):
+        key = row[ix["設定鍵"]] if len(row) > ix["設定鍵"] else None
+        if key: entries.append((key, row[ix["填寫值"]], row[ix["必填"]] == "必填", row[ix["欄位"]]))
+    conf = None
+    if "停點確認" in wb.sheetnames:
+        conf = [STOP_KEY.get(int(r[0])) for r in wb["停點確認"].iter_rows(min_row=3, values_only=True)
+                if r and r[0] and str(r[0]).isdigit() and r[4] not in (None, "")]
+    return entries, items_from_ws(wb["側溝與集水井"]), conf
+
+
 def main():
     a = sys.argv[1:]
     if len(a) < 2: raise SystemExit(__doc__)
@@ -163,23 +199,17 @@ def main():
             cfg[k].pop("ditches", None); cfg[k].pop("wells", None)
     if opt("--data-dir"): cfg["data_dir"] = opt("--data-dir")
     if opt("--out-dir"): cfg["out_dir"] = opt("--out-dir")
-    wb = load_workbook(xlsx, data_only=True)
-    ws = wb["條件表"]; head = [c.value for c in ws[2]]; ix = {h: i for i, h in enumerate(head)}
+    entries, items, conf = load_input(xlsx)
     missing, warn, n_in = [], [], 0
-    for row in ws.iter_rows(min_row=3, values_only=True):
-        key = row[ix["設定鍵"]] if len(row) > ix["設定鍵"] else None
-        if not key: continue
-        val, req, name = row[ix["填寫值"]], row[ix["必填"]] == "必填", row[ix["欄位"]]
+    for key, val, req, name in entries:
         if val is None or str(val).strip() == "":
             if req: missing.append((key, name, stop_of(key)))
             continue
         n_in += 1
         ok = convert(key, val, cfg, warn)
         if not ok and req: missing.append((key, f"{name}（填了「{val}」但解析不出可用值）", stop_of(key)))
-    read_items(wb["側溝與集水井"], cfg, missing)
-    if "停點確認" in wb.sheetnames:
-        conf = [STOP_KEY.get(int(r[0])) for r in wb["停點確認"].iter_rows(min_row=3, values_only=True)
-                if r and r[0] and str(r[0]).isdigit() and r[4] not in (None, "")]
+    read_items(items, cfg, missing)
+    if conf is not None:
         cfg["stops_confirmed"] = sorted(set(cfg.get("stops_confirmed", []) if not opt("--base") else []) | set(c for c in conf if c))
     cfg.setdefault("case_code", re.match(r"[A-Za-z]*\d*", cfg.get("case_name", "")).group(0) if cfg.get("case_name") else "")
     json.dump(cfg, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
