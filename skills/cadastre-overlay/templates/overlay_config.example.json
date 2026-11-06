@@ -1,0 +1,84 @@
+{
+  "_說明": "P33 東山街案的值當範例。新案複製到案件資料夾改名 overlay_config.json，逐項改成本案的值。以 _ 開頭的欄位是註解，程式不讀。",
+  "case": "P33 臺中市新社區東山街與協興街路口排水改善",
+
+  "pdf": {
+    "_pages": "頁面依 PDF 頁序為 p1、p2…；section_full 是圖上標的段名。",
+    "pages": {
+      "p1": {"section": "永興段", "section_full": "新社區永興段"},
+      "p2": {"section": "協中段", "section_full": "新社區協中段"}
+    },
+    "_objects": "pdf_parse 自動找不到內容串流、ToUnicode 時才填，例：{\"p1\": {\"contents\": [15, 19, 30], \"tounicode\": 56}}",
+    "objects": null,
+    "scale_denominator": 3000,
+    "_map_clip_pt": "謄本地圖框（紙面 pt：x0, y0, x1, y1），框外的線與文字不取。",
+    "map_clip_pt": [36.2835, 56.6929, 558.9638, 683.1496],
+    "_cadastral_stroke_rgb": "地籍線的筆畫顏色（看 pdf_preview 印出的線條樣式統計）。",
+    "cadastral_stroke_rgb": [0.9412, 0.9412, 0.9412],
+    "rgb_tol": 0.01,
+    "min_line_width": 0.05,
+    "_label_max_size_pt": "字高小於此值的文字當地號；大於等於的是標題、段名、比例尺等，不取。",
+    "label_max_size_pt": 6
+  },
+
+  "survey": {
+    "_skip_layers": "測量圖預覽、配準時略過的圖層（圖框、格網、圖塊、填線）。",
+    "skip_layers": ["BLOCK", "NE_GRID", "C5", "HATCH1"]
+  },
+
+  "registration": {
+    "_init": "初值：謄本標示比例尺＋單點。pref 是控制點附近一個地籍角點的 PDF pt 座標，wref 是該角點的 TWD97（由網頁截圖量得）。旋轉先設 0。",
+    "init": {
+      "p1": {"pref": [382.0, 425.8], "wref": [229265.05, 2678885.28]},
+      "p2": {"pref": [195.4, 374.7], "wref": [229272.00, 2678884.14]}
+    },
+    "init_source": "web map marker E229269 N2678884, 9.175 px/m",
+
+    "_controls": "控制點（至少 2 點，分佈在工區兩端）。twd97：使用者在國土圖資等網頁標記的真座標；observed：同一地物在『目前套繪結果』量到的座標（用 probe.py 量）。pages 省略時套用到所有頁；某頁有 2 點以上時該頁單獨算。",
+    "controls": [
+      {"name": "北端 東山街×協興街口", "twd97": [229269.0, 2678884.0], "observed": [229269.0, 2678884.0]},
+      {"name": "南端 設計終點", "twd97": [229268.603, 2678767.941], "observed": [229268.863, 2678768.991]}
+    ],
+
+    "_auto": "register.py（選用）自動格點搜尋的初值與排除圖層；沒有網頁控制點時當粗配準，或用來交叉檢核。",
+    "auto_init": {
+      "p1": {"pref": [382.0, 422.4], "wref": [229264.8, 2678883.0]},
+      "p2": {"pref": [195.4, 372.3], "wref": [229275.6, 2678882.6]}
+    },
+    "auto_extra_skip_layers": ["道路標線"],
+    "auto_skip_layer_prefixes": ["0-"]
+  },
+
+  "output": {
+    "_layers": "依 CLAUDE.md L-01：地籍線 252 灰色虛線。地號圖層顏色規則未定，暫用 7【待確認】。P33 v1.1 實際交付是兩層都用 6、實線。",
+    "layers": {
+      "地籍線": {"color": 252, "linetype": "DASHED"},
+      "地號": {"color": 7, "linetype": "Continuous"}
+    },
+    "text_style": {"name": "地籍GENISO", "font": "GENISO.shx", "bigfont": "genie.shx", "width": 0.5},
+    "_text_height_m": "地號字高（m）；1/500 出圖時 2.5 m ≈ 14 pt。段名 5 m。",
+    "text_height_m": 2.5,
+    "section_text_height_m": 5.0,
+    "_section_label_pdf": "段名放置位置（PDF pt），挑地塊內、遠離道路的位置。",
+    "section_label_pdf": {"p1": [300, 470], "p2": [330, 520]},
+    "_road_axis_e": "沿南北向道路（固定 E 值）的窄長條地，引線一律往路外側標；沒有這種道路就設 null。",
+    "road_axis_e": 229270.3,
+    "road_axis_band_m": 15
+  },
+
+  "preview": {
+    "title": "測量圖套繪地籍（TWD97）",
+    "_windows": "預覽範圍：[E0, E1, N0, N1, 標題]；第一個是全區（同時輸出 PNG）。",
+    "windows": [
+      [229110, 229430, 2678620, 2678930, "全區"],
+      [229215, 229325, 2678800, 2678920, "北段（東山街×協興街口）"],
+      [229215, 229325, 2678700, 2678820, "中段"],
+      [229215, 229325, 2678610, 2678730, "南段"]
+    ]
+  },
+
+  "verify": {
+    "_sample_texts": "verify_merged 抽印座標的文字（地號、段名）。",
+    "sample_texts": ["546", "561", "694", "744", "新社區永興段", "新社區協中段"]
+  }
+}
