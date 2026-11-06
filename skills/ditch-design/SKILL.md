@@ -66,7 +66,15 @@ description: 道路側溝排水設計一條龍：案件條件表（xlsx）轉設
    python scripts/intake_fill_example.py templates/排水設計_案件條件表_v1.0.xlsx $env:TEMP\條件表_P33範例.xlsx
    python scripts/intake_to_config.py $env:TEMP\條件表_P33範例.xlsx $env:TEMP\ditch_config_P33範例.json --base templates/ditch_config.P33.json
    ```
-4. 轉完補條件表沒有的鍵：`data_dir`、`out_dir`、`demolish[]` 明細（側別、尺寸）、`design.ditches[].line_layer`、`legend.box`、`front.map`、各案件資料檔檔名。
+4. 網頁表單（同事一步一步填，較 Excel 簡單）：單一 HTML 檔，離線可用，9 步、下拉選單、當場檢查必填與數值範圍、依 EG／SG 隱藏不相關欄位，填完「下載設定檔（JSON）」。欄位取自 `make_intake_xlsx.py` 的 `ROWS`（同一份定義；有設定鍵沒有元件時產生器直接報錯）。`intake_to_config.py` 直接吃這個 JSON，轉出結果與 Excel 條件表相同（P33 範例逐鍵比對 146 鍵全同）。
+   ```powershell
+   python templates/make_intake_html.py $env:TEMP\排水設計_案件條件表單_v1.0.html
+   python scripts/intake_to_config.py <下載的案件條件.json> $env:TEMP\ditch_config_表單.json --base templates/ditch_config.P33.json
+   ```
+   - 表單送來的 JSON 一律視為**沒有確認任何停點**（不沿用 `--base` 範本的 `stops_confirmed`），避免新案套 P33 範本時跳過★停點。
+   - 改欄位：改 `make_intake_xlsx.py` 的 `ROWS`，再到 `make_intake_html.py` 的 `W`、`STEPS` 補元件，兩個檔案都重產。
+   - 下一階段（待 NAS 管理者啟用 Web Station／反向代理）：表單用同事的 NAS 帳號登入（DSM `SYNO.API.Auth`），送出直接上傳到案件資料夾（`SYNO.FileStation.Upload`）；跨埠的瀏覽器限制要實測。
+5. 轉完補條件表沒有的鍵：`data_dir`、`out_dir`、`demolish[]` 明細（側別、尺寸）、`design.ditches[].line_layer`、`legend.box`、`front.map`、各案件資料檔檔名。
 
 ### 2. 一鍵執行（遇★停點就停）
 ```powershell
