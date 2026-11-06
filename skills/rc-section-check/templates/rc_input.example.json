@@ -1,0 +1,92 @@
+{
+  "_說明": "配筋檢核輸入欄位清單，數值為 P33 東山街案範例（箱涵式側溝 W×H＝110×100 cm，引用臺北市 B20）。rebar_check.py 的 --param json 只讀 section 內 W、H、t_wall、t_slab、t_cover、well_in 六項（單位 m）；其餘欄位要手動填進 rebar_check.py 的 R 表。新案逐項改，缺項標【待確認】，不要沿用 P33 值。",
+  "case": {
+    "case_code": "P33",
+    "structure": "箱涵式側溝（預鑄蓋板）",
+    "type_options": "預鑄蓋板箱涵式側溝／場鑄頂版箱涵／開口 U 溝",
+    "ref_standard": "臺北市工務局 B20 箱涵式側溝（附註：配筋適用於渠寬 100 cm 以下）",
+    "out_of_range_reason": "本案渠寬 110 cm＞100 cm"
+  },
+  "section": {
+    "W": 1.1,
+    "H": 1.0,
+    "t_wall": 0.2,
+    "t_slab": 0.2,
+    "t_cover": 0.23,
+    "haunch": "S-01 有加腋，檢核未計入",
+    "well_in": 1.5,
+    "well_wall": 0.2,
+    "well_depth": "1.6【待確認】",
+    "cover_block_width_cm": 100,
+    "type_A_cover_opening_cm": 73,
+    "_單位": "W～well_wall 為 m"
+  },
+  "surface": {
+    "fill_depth_m": 0.0,
+    "pavement": "AC",
+    "pavement_thickness_m": 0.05,
+    "pavement_unit_weight_t_m3": 2.3
+  },
+  "vehicle": {
+    "model": "HS20-44（依業主或道路主管機關規定）",
+    "rear_wheel_t": 7.26,
+    "impact": "I＝15.24／(L＋38)≦0.30",
+    "distribution_width": "E＝1.22＋0.06S（m），主筋垂直車行",
+    "source": "交通部 公路橋梁設計規範【待確認條號】"
+  },
+  "soil": {
+    "K0": "0.5【待確認，無地質資料】",
+    "unit_weight_t_m3": "1.9【待確認，無地質資料】",
+    "surcharge_equiv_height_m": 0.6,
+    "surcharge_source": "AASHTO 3.20.3（2 ft）【待確認】",
+    "groundwater_level": "未計【待確認】"
+  },
+  "material": {
+    "fc_body_kgf_cm2": 210,
+    "fc_cover_kgf_cm2": 280,
+    "rc_unit_weight_t_m3": 2.4,
+    "fy_D16_D19": "4200（SD420W，經使用者確認，圖上保留此規格）",
+    "fy_D10_D13": "2800（SD280W）",
+    "bar_area_cm2": { "D10": 0.7133, "D13": 1.267, "D16": 1.986, "D19": 2.865 },
+    "bar_unit_weight_kg_m": { "D10": 0.560, "D13": 0.994, "D16": 1.56, "D19": 2.25 }
+  },
+  "cover_concrete_cm": {
+    "precast_cover": 3,
+    "wall_soil_side": 5,
+    "bottom_slab": 4
+  },
+  "load_combination": {
+    "U": "1.2D＋1.6L＋1.6H",
+    "phi_flexure": 0.9,
+    "phi_shear": 0.75,
+    "source": "內政部 混凝土結構設計規範【待確認版次與條號】"
+  },
+  "existing_rebar": {
+    "type_B_cover_main": "⑩ D16，單塊底層 7 支（上下層各 7）",
+    "type_B_cover_stirrup": "⑧ D13 U 形 @15",
+    "type_A_cover_main": "① D19，兩肋底層 4 支（上下層各 4）",
+    "type_A_cover_stirrup": "④ D13 U 形 @7.5",
+    "wall_main": "A D16 @15",
+    "slab_main": "B D13 @15",
+    "well_wall": "E、F D13 @15（集水井）",
+    "longitudinal": "側溝 E D13 @25 內外兩層，每斷面 30 支（P33 v1.2 補配）"
+  },
+  "longitudinal_rules": {
+    "rho_wall_horizontal": 0.0025,
+    "rho_slab_temperature": 0.0020,
+    "spacing_wall": "min(3t, 45 cm)",
+    "spacing_slab": "min(5t, 45 cm)",
+    "lap_length_cm": "52（40db）【待確認】",
+    "stock_length_m": 12
+  },
+  "p33_result_v1_2": {
+    "file": "(臺中48)20261106_1450_箱涵式側溝配筋檢核表_W110_v1.2.xlsx",
+    "type_B_cover": "彎矩 54%、剪力 51%（含 ⑧ 箍筋）",
+    "type_A_cover": "彎矩 77%、剪力 50%",
+    "wall": "彎矩 14%、剪力 25%",
+    "slab": "彎矩 41%、剪力 45%",
+    "well_wall": "彎矩 28%、剪力 34%",
+    "longitudinal": "側牆 49%、底版 39%；每公尺 31.11 kg",
+    "not_checked": "集水井格柵蓋、錨定長度、主筋裂縫控制"
+  }
+}
