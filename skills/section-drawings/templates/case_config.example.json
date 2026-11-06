@@ -24,7 +24,13 @@
     "densify_step": 1.0,
     "max_edge": 40.0,
     "view_grid_step": 0.1,
-    "view_vertical_exaggeration": 2.0
+    "view_vertical_exaggeration": 2.0,
+    "_說明_高程點": "以下 spot_* 鍵給 spot_codes.py、build_terrain_spots.py 用（只有高程點、沒有等高線時）。spot_exclude_codes 是要剔除的非路面點代碼（擋牆頂、既有溝底等），先跑 spot_codes.py 看分布、問過使用者才填；預設不剔除。spot_ref_line 是看代碼分布用的參考線兩端 [[x0, y0], [x1, y1]]，空白時取定線中心線兩端。",
+    "spot_desc_tag": "DESC",
+    "spot_elev_tag": "ELEV",
+    "spot_exclude_codes": [],
+    "spot_ref_line": [],
+    "spot_ref_band": 12.0
   },
   "alignment": {
     "dxf": "定線.dxf",
@@ -51,6 +57,29 @@
   },
   "profile": {
     "split_at": [120.0]
+  },
+  "_說明_sg": "有整地 DWG 時才用：把 _sg_範例 改名為 sg（設計出圖程式以「設定檔有 sg」判定改用 SG 地面），給 build_sg.py。pads 每區一個圖層、四邊形；四角高程用 corner_z，平整面用 z。eg_tin_npz 空白時用上方 tin_npz。draw_eg_line 預設 false＝設計縱、橫斷面都不畫原地形線，只畫 SG（P33 使用者 2026-11-05 決定）。數值為 P33 範例。",
+  "_sg_範例": {
+    "pad_dxf": "src/sg_pad.dxf",
+    "pads": [
+      {"layer": "0-整地01", "corner_z": {"NW": 476.99, "NE": 477.00, "SW": 477.88, "SE": 477.80}}
+    ],
+    "eg_tin_npz": "tin_v1.npz",
+    "tin_npz": "tin_sg_v1.npz",
+    "edge_buffer": 1.0,
+    "grid_step": 1.0,
+    "edge_step": 0.5,
+    "draw_eg_line": {"profile": false, "cross_section": false},
+    "note": "整地四角高程來源（使用者給定日期、DWG 檔名）"
+  },
+  "_說明_eg_fix": "使用者在 V2 橫斷面手改地面線、要回寫原地形時才用：把 _eg_fix_範例 改名為 eg_fix，給 eg_fix.py。edits_npy 由 V2 比對產生（見 SKILL cad-v2-feedback）。band 是兩側修正帶橫距 [內, 外]（m），s_range 是樁距範圍（終點 null＝中心線全長）。數值為 P33 範例。",
+  "_eg_fix_範例": {
+    "edits_npy": "src/xs_user_edits_v1.npy",
+    "src_tin": "tin_v1.npz",
+    "out_tin": "tin_v2.npz",
+    "band": [5.2, 9.5],
+    "xs_step": 0.5,
+    "s_range": [-5.0, null]
   },
   "has_color_xref": false
 }
