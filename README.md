@@ -9,6 +9,7 @@
 - `cad/templates/` — A3 平縱橫斷面圖說樣板（DWG＋DXF，不含任何案件資料）與產生它的 `cad_template.py`。
 - `skills/section-drawings/` — 平縱橫斷面出圖產生器 SKILL：建地形 TIN、定線、切縱橫斷面、出 A3 DXF／PDF／PNG。同步後在 Claude Code 說「建地形」「出縱橫斷面圖」等就會自動使用，或打 `/section-drawings`。案件設定檔與案件資料不放進倉庫。
 - `skills/qty-budget/` — 數量計算書、工程數量計算表、配筋檢核表、PCCES 格式預算書產生器與 Excel 交付檢查（P33 參考實作）。說「數量計算書」「預算書」等就會使用，或打 `/qty-budget`。範本與成品不放進倉庫。
+- `skills/ditch-design/` — 道路側溝排水設計一條龍：案件條件表轉設定檔，依★停點自動出平面、縱橫斷面、標準圖、地籍套繪、圖冊、CAD 整合，以及數量計算書、工程數量計算表、工期、PCCES 預算書，並可對已核定成果回歸比對（P33 東山街案一般化）。說「排水設計」「側溝」「案件條件表」等就會使用，或打 `/ditch-design`。
 - `cad/plot-styles/` — 出圖圖筆 `A3-圖筆(黑白).ctb`（預設）、`A3-圖筆(全彩).ctb`（有航照或彩色外參才用）。要給 CAD 使用，請複製到 CAD 的列印型式資料夾（中望 ZWCAD 2025：`%APPDATA%\ZWSOFT\ZWCAD\2025\zh-TW\Printstyle`）。
 
 ## 新電腦第一次設定

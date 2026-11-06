@@ -1,0 +1,336 @@
+{
+ "_說明": "P33 東山街案重跑設定（回歸測試用）。data_dir 指向 P33 案件資料夾（唯讀），out_dir／work_dir 為重跑輸出。新案由 intake_to_config.py 從案件條件表產生，再補本檔有、條件表沒有的版面鍵。",
+ "case_name": "P33_新社東山街側溝",
+ "case_code": "P33",
+ "file_prefix": "(臺中48)",
+ "data_dir": "D:\\Claude_工作區\\共用\\地形出圖\\cases\\P33_新社東山",
+ "out_dir": "D:\\Claude_工作區\\輸出\\排水設計自動化\\P33重跑驗證",
+ "work_dir": "D:\\Claude_工作區\\輸出\\排水設計自動化\\P33重跑驗證\\_work",
+ "src_dxf": "src/survey_v2.dxf",
+ "sf_dxf": "src/sf.dxf",
+ "tin_npz": "tin_v2.npz",
+ "title_block": {
+  "project": "臺中市新社區東山街與協興街路口排水改善工程",
+  "agency": "臺中市政府水利局",
+  "agency_en": "Taichung Water Resources Bureau",
+  "designer": "辰璟工程技術顧問有限公司",
+  "designer_en": "Chen-Jing Engineering Co.,Ltd",
+  "design": "陳俊廷",
+  "draft": "李傳承",
+  "manager": "葉旭璽",
+  "check": "葉旭璽",
+  "date_roc": "115年11月"
+ },
+ "layers": {
+  "contour_minor": "",
+  "contour_major": "",
+  "spot_insert_layer": "0",
+  "features": [
+   "$00150",
+   "$00160",
+   "$00220",
+   "$00230",
+   "$00270(既有側溝)",
+   "$00290",
+   "$00300",
+   "$00350(混凝土邊線)",
+   "$00370",
+   "$00380",
+   "暗溝蓋",
+   "道路標線",
+   "_00000",
+   "_00100",
+   "_00300",
+   "_00400",
+   "_00600",
+   "_00720",
+   "_00800"
+  ],
+  "existing_ditch_keyword": "側溝",
+  "existing_ditch_label_layer": "HATCH1",
+  "skip_blocks": [
+   "POINT",
+   "CPOINT"
+  ],
+  "control_point_block": "CPOINT",
+  "control_point_tag": "CNTP"
+ },
+ "legend": {
+  "layer": "BLOCK",
+  "box": [
+   229339.0,
+   2678607.0,
+   229371.0,
+   2678636.0
+  ],
+  "split_x": 229352.0
+ },
+ "alignment": {
+  "dxf": "alignment_v3.dxf",
+  "centerline_layer": "中心線1",
+  "centerline": [
+   [
+    229269.988,
+    2678883.406
+   ],
+   [
+    229268.603,
+    2678767.941
+   ]
+  ],
+  "bank_left_layer": "左側道路邊線A",
+  "bank_right_layer": "右側道路邊線B",
+  "spacing": 20.0,
+  "downstream": "start",
+  "downstream_dir": "北",
+  "plan_range": [
+   -30.0,
+   150.0
+  ]
+ },
+ "sg": {
+  "pad_dxf": "src/sg_pad.dxf",
+  "corner_z": {
+   "NW": 476.99,
+   "NE": 477.0,
+   "SW": 477.88,
+   "SE": 477.8
+  },
+  "tin_npz": "tin_sg_v3.npz",
+  "draw_eg_line": false
+ },
+ "design": {
+  "ground": "SG",
+  "ditch_type": "箱涵式側溝（甲乙種預鑄溝蓋板）",
+  "top_rule": "蓋板頂貼 SG，每 1 m 逐點",
+  "t_cover": 0.23,
+  "t_wall": 0.2,
+  "t_slab": 0.2,
+  "t_bed": 0.1,
+  "sump": 0.3,
+  "well_wall": 0.2,
+  "road_tol": 0.25,
+  "outlet": "下游 0K+000 集水井 #AC1、#BC1",
+  "fc": "溝體 210、蓋板與緣石 280、墊層 140",
+  "rebar_grade": "D16、D19 用 SD420W；D10、D13 用 SD280W",
+  "ditches": [
+   {
+    "id": "#A",
+    "side": "A",
+    "lr": "left",
+    "dir": "西",
+    "name": "A 側（西）",
+    "line_layer": "左側道路邊線A",
+    "W": 1.1,
+    "H": 1.0
+   },
+   {
+    "id": "#B",
+    "side": "B",
+    "lr": "right",
+    "dir": "東",
+    "name": "B 側（東）",
+    "line_layer": "右側道路邊線B",
+    "W": 1.1,
+    "H": 1.0
+   }
+  ],
+  "wells": [
+   {
+    "id": "#AC1",
+    "side": "A",
+    "end": "start",
+    "inner": 1.5
+   },
+   {
+    "id": "#AC2",
+    "side": "A",
+    "end": "end",
+    "inner": 1.5
+   },
+   {
+    "id": "#BC1",
+    "side": "B",
+    "end": "start",
+    "inner": 1.5
+   },
+   {
+    "id": "#BC2",
+    "side": "B",
+    "end": "end",
+    "inner": 1.5
+   }
+  ]
+ },
+ "standards": {
+  "ditch": "依 B20 改淨寬 110、淨高 100（超出 B20 適用範圍，另做配筋檢核）",
+  "guardrail": "A18 鋼管護欄（臨時）",
+  "rc_check": true,
+  "sheets": [
+   [
+    "S-01",
+    "箱涵式側溝標準圖",
+    "1/20、1/40"
+   ],
+   [
+    "S-01-1",
+    "預鑄溝蓋板、緣石詳圖及平面圖",
+    "1/20、1/50"
+   ],
+   [
+    "S-03",
+    "臨時擋土設施及臨時鋼管護欄詳圖",
+    "NTS"
+   ],
+   [
+    "S-04",
+    "施工中交通維持示意圖",
+    "NTS"
+   ],
+   [
+    "S-05",
+    "交通設施詳圖",
+    "NTS"
+   ],
+   [
+    "S-06",
+    "告示牌詳圖",
+    "NTS"
+   ]
+  ],
+  "b20_dxf": "src/B20_V2.0_臺北市工務局標準圖_箱涵式側溝構造詳圖.dxf",
+  "a18_dxf": "src/A18_V1.0_臺北市工務局標準圖_鋼管護欄詳圖.dxf"
+ },
+ "temp_shoring": {
+  "type": "鋼軌樁",
+  "pile_l": 3.0,
+  "pile_sp": 1.0,
+  "offset_out": 0.1,
+  "offset_in": 0.3
+ },
+ "demolish": [
+  {
+   "side": "A",
+   "name": "A 側既有暗溝",
+   "size": "50×80",
+   "demolish": true
+  },
+  {
+   "side": "B",
+   "name": "B 側既有暗溝",
+   "size": "50×85",
+   "demolish": true
+  }
+ ],
+ "traffic": {
+  "phases": "A、B 兩階段",
+  "guardrail_side": "路內側＋兩端"
+ },
+ "cadastre": {
+  "dxf": "src/cadastral_v1.1.dxf",
+  "block": "0-地籍圖"
+ },
+ "front": {
+  "map_png": "src/map/google_z17.png",
+  "map": {
+   "lat0": 24.21479,
+   "lon0": 120.7959,
+   "zoom": 17,
+   "dpr": 2,
+   "cx": 700.0,
+   "cy": 650.0,
+   "crop": [
+    500,
+    590,
+    2300,
+    2010
+   ]
+  },
+  "notes_file": "general_notes.P33.json"
+ },
+ "plan": {
+  "center_world": [
+   229269.3,
+   2678825.7
+  ]
+ },
+ "qty": {
+  "items_file": "qty_items.P33.json",
+  "table_file": "qty_table.P33.py"
+ },
+ "budget": {
+  "unit_prices_file": "unit_prices.P33.json",
+  "template_xls": "象鼻段 (預算書)…_1150915v1.xls",
+  "plan_name": "【待補】",
+  "project_no": "【待補】",
+  "account": "【待補】",
+  "site": "臺中市新社區",
+  "site_detail": "臺中市新社區東山街（協興街路口以北）",
+  "date_roc": "115年11月",
+  "price_sources": [
+   "象鼻段 115 年 PCCES 預算書",
+   "大湖範例 115 年（10-2）",
+   "臺北市 112 年單價×K"
+  ],
+  "rates": {
+   "qc": 0.02,
+   "profit": 0.08,
+   "tax": 0.05,
+   "air": 0.0035,
+   "mgmt": 0.03
+  },
+  "rate_notes": {
+   "qc": "象鼻段 18,931＝(822,762+123,782)×2% 核算相符；分段級距【待確認】",
+   "profit": "使用者 2026-11-06 指定 8%",
+   "tax": "營業稅法",
+   "air": "象鼻段 4,897＝1,399,006×0.35% 核算相符",
+   "mgmt": "工程管理費支用要點分段【待確認】",
+   "design_fee": "使用者 2026-11-06 提供",
+   "supervision_fee": "使用者 2026-11-06 提供"
+  },
+  "design_fee": 312182,
+  "supervision_fee": 312181
+ },
+ "schedule": {
+  "days": 90,
+  "calendar": "日曆天，不另折減",
+  "flagmen": 2,
+  "flag_work_days": 60,
+  "basis": "使用者 2026-11-06 指定"
+ },
+ "plot": {
+  "ctb": "A3-圖筆(全彩).ctb",
+  "plan_scale": 500,
+  "profile_scale": [
+   500,
+   50
+  ],
+  "xs_scale": 100
+ },
+ "versions": {
+  "profiles": "v1.6",
+  "cross_sections": "v3.5",
+  "plan_view": "v4.3",
+  "plan_profile": "v1.6",
+  "cadastral": "v1.5",
+  "front": "v2.2",
+  "cover": "v1.0",
+  "standard": "v3.4",
+  "quantity": "v1.5",
+  "qty_table": "v2.0",
+  "budget": "v2.5",
+  "rebar": "v1.2",
+  "schedule": "v1.0",
+  "set": "v3.7",
+  "cad_set": "v1.7"
+ },
+ "stops_confirmed": [
+  "terrain",
+  "alignment",
+  "ground",
+  "standards",
+  "demolish",
+  "prices",
+  "schedule"
+ ]
+}
