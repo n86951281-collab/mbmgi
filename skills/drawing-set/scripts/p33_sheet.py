@@ -21,7 +21,9 @@ TB = dict(agency="臺中市政府水利局", agency_en="Taichung Water Resources
           designer="辰璟工程技術顧問有限公司", designer_en="Chen-Jing Engineering Co.,Ltd")
 LS = {"DOT": (0, (1, 3)), "DASHED": (0, (6, 3)), "DOT2": (0, (1, 1.5)), "CENTER": (0, (12, 3, 3, 3)), "DASHDOT": (0, (8, 2, 1, 2))}
 
-def tw(s, h=TXT, wf=WF): return wf * sum(h if ord(ch) > 255 else 0.6 * h for ch in s)
+ML_HL = 1.8                                                          # MLEADER 多行文字在 AutoCAD 的實際行距（字高倍數，2026-11-06 實測）
+CJK_W, ASC_W = 1.20, 0.66                                          # GENIE.shx 實測字寬（2026-11-06 CAD 發布量測：中文 1.20h、半形 0.66h，乘寬度係數）
+def tw(s, h=TXT, wf=WF): return wf * sum(CJK_W * h if ord(ch) > 255 else ASC_W * h for ch in s)
 
 class Sheet:
     def __init__(self, name): self.items = []; self.name = name; self.wf = WF
@@ -33,7 +35,7 @@ class Sheet:
     def mleader(self, tgt, tx, ty, lines, side, h=PT):
         """多重引線（DXF 寫 MLEADER，文字 14 pt）。side=+1 文字在引線右側、-1 在左側；(tx, ty)＝文字近引線端中點。
         預覽：mltext（列入文字檢查）／mlpoly（引線）／mlfill（箭頭）"""
-        n = len(lines); hl = h * 1.5; T = np.array(tgt, float); i0 = len(self.items)
+        n = len(lines); hl = h * ML_HL; T = np.array(tgt, float); i0 = len(self.items)
         for j, t in enumerate(lines):
             self.items.append(("mltext", (tx, ty + (n - 1) / 2 * hl - j * hl), t, "left" if side > 0 else "right", h, 0, self.wf))
         dog = np.array([tx - side * 5.0, ty]); land = np.array([tx - side * 1.0, ty])
@@ -57,7 +59,9 @@ def frame(sh, name, scales, no):
     sh.line(262, 10, 262, 32, "圖標欄")
     yc = (14.94, 20.88, 26.82); sh.wf = TB_WF
     sh.text(48, yc[2], "主辦機關", "center", TBT); sh.text(48, yc[1], TB["agency"], "center", TBT); sh.text(48, yc[0], TB["agency_en"], "center", TBT)
-    sh.text(89.5, 26.5, "工程名稱：" + TB["project"], "left", TBT); sh.text(89.5, 15.5, "圖　名：" + name, "left", TBT)
+    sh.wf = 0.55                                                      # 工程名稱：GENIE 實際字寬比估算寬約 3～5%，係數收到 0.62 留餘裕（2026-11-06 CAD 實測超框）
+    sh.text(89.5, 26.5, "工程名稱：" + TB["project"], "left", TBT); sh.wf = TB_WF
+    sh.text(89.5, 15.5, "圖　名：" + name, "left", TBT)
     sh.text(207, yc[2], "比例尺", "center", TBT)
     if len(scales) == 1: sh.text(207, yc[1], scales[0], "center", TBT)
     else: sh.text(207, yc[1], scales[0], "center", TBT); sh.text(207, yc[0], scales[1], "center", TBT)
@@ -115,8 +119,9 @@ def save(sheets, layers, out_dir, prev_dir, base):
                 ml.set_content("\\P".join(f"\\W{WF};{t}" for t in lines), char_height=h, style="GENIE",
                                alignment=_mlr.TextAlignment.left if side > 0 else _mlr.TextAlignment.right)
                 ml.set_arrow_properties(size=2.5); ml.set_connection_properties(landing_gap=1.0, dogleg_length=4.0)
+                ml.set_connection_types(left=_mlr.HorizontalConnection.middle_of_text, right=_mlr.HorizontalConnection.middle_of_text)  # 連字線接整段文字中間（同預覽）
                 ml.add_leader_line(_mlr.ConnectionSide.left if side > 0 else _mlr.ConnectionSide.right, [_V2(tgt[0] + ox, tgt[1])])
-                ml.build(insert=_V2(tx + ox, ty)); continue
+                ml.build(insert=_V2(tx + ox, ty + ((len(lines) - 1) * h * ML_HL + h) / 2)); continue   # insert＝文字塊頂端；預覽以 ty 為字塊中心   # 行距 1.5h（AutoCAD 預設 1.667h×係數）
             if it[0] == "image":                                # DXF 以 IMAGE 參照同資料夾的 PNG
                 from PIL import Image as _Im
                 _, pth, (x0, y0, x1, y1) = it; wpx, hpx = _Im.open(pth).size

@@ -54,7 +54,7 @@ for name, x0, y0 in sheets:
     # 視埠由 AutoCAD 建立（ezdxf 建的視埠在 AutoCAD 出圖時不顯示模型內容，2026-11-06 實測），見 cad_set_dwg.scr
 for nm in [l.name for l in doc.layouts if l.name not in ("Model",) and l.name not in [s[0] for s in sheets]]:
     doc.layouts.delete(nm)
-out = os.path.join(OUT, f"{PRE}{stamp}_A3_設計圖冊_CAD整合_v1.0_TWD97_GENIE.dxf")
+out = os.path.join(OUT, f"{PRE}{stamp}_A3_設計圖冊_CAD整合_v1.5_TWD97_GENIE.dxf")
 if os.path.exists(out): sys.exit(f"{out} 已存在，不覆蓋")
 doc.saveas(out)
 json.dump([list(s_) for s_ in sheets], open(os.path.join(HERE, "cad_set_layouts.json"), "w", encoding="utf-8"), ensure_ascii=False)

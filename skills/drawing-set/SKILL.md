@@ -49,6 +49,8 @@ description: 設計圖冊組圖與出圖：A3 圖紙元件（圖框、多重引�
 - ezdxf 建的 VIEWPORT 在主控台出圖時不顯示模型內容，所以改由 AutoCAD 指令檔 `-VPORTS 0,0 420,297` 建視埠。
 - 建視埠前要先在圖紙空間 `ZOOM W -10,-10 430,307`，不然 `MSPACE` 會回「沒有作用中的模型空間視埠」。
 - accoreconsole 不印點陣影像（Google 底圖），PUBLISH 測試頁看不到底圖是正常的；AutoCAD 視窗版才會印。IMAGEDEF 用絕對路徑，PNG 跟著 DWG 一起交。
-- GENIE.SHX 在本機 AutoCAD 的 `Chaing\SHX`，主控台不一定載得到；字寬比預覽略寬（約 3%），長字串（例如圖標欄工程名稱）要留餘裕。
+- GENIE 實際字寬：中文約 1.20h、半形約 0.66h（再乘寬度係數），比舊估算（1.0h、0.6h）寬約 20%。`p33_sheet.tw()` 已改用 `CJK_W`、`ASC_W` 實測值，自動檢查才準；圖標欄工程名稱用寬度係數 0.55。
+- MLEADER：`build(insert=…)` 的插入點是文字塊頂端，不是中心，要用「中心＋(行數−1)×行距＋字高的一半」換算。AutoCAD 多行行距約 1.8h（`ML_HL`），行距係數或精確行距設了不會變小。連字線用 `HorizontalConnection.middle_of_text`，接在文字中間。
+- 用 PUBLISH 測試頁核對 CAD 實際排版，不要只看程式預覽。程式預覽是依估算字寬縮放的，跟 CAD 不一定一樣。
 - 指令檔、DSD 的配置名用純英數。DSD 用 cp950 編碼時中文路徑可正常發布。
 - 圖說 DXF 已存在時程式不覆蓋，重出要換存檔時間。

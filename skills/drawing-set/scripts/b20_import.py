@@ -10,6 +10,7 @@ import numpy as np
 import ezdxf
 from ezdxf import bbox, path as ezpath
 from ezdxf.render import hatching
+from p33_sheet import tw as S_tw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "src", "B20_V2.0_臺北市工務局標準圖_箱涵式側溝構造詳圖.dxf")
@@ -163,7 +164,7 @@ def place(sh, name, ox, oy, k, scale_label=None, text_h=PTMIN):
     return (ox, oy, ox + (bx1 - bx0) * k, oy + (by1 - by0) * k)
 
 def _box(it):
-    _, (x, y), s_, ha, h, rot, wf = it[:7]; w = wf * sum(h if ord(c) > 255 else 0.6 * h for c in s_); th = math.radians(rot)
+    _, (x, y), s_, ha, h, rot, wf = it[:7]; w = S_tw(s_, h, wf); th = math.radians(rot)
     a0 = 0 if ha == "left" else -w / 2 if ha == "center" else -w
     P_ = [(x + u * math.cos(th) - v * math.sin(th), y + u * math.sin(th) + v * math.cos(th)) for u in (a0, a0 + w) for v in (-h / 2, h / 2)]
     return min(p[0] for p in P_), min(p[1] for p in P_), max(p[0] for p in P_), max(p[1] for p in P_)
