@@ -71,6 +71,7 @@ description: 道路側溝排水設計一條龍：案件條件表（xlsx）轉設
    python templates/make_intake_html.py $env:TEMP\排水設計_案件條件表單_v1.0.html
    python scripts/intake_to_config.py <下載的案件條件.json> $env:TEMP\ditch_config_表單.json --base templates/ditch_config.P33.json
    ```
+   - 手機看 HTML 檔只會顯示原始碼，要讓手機能填，發布成 claude.ai 網頁：`python templates/make_intake_html.py <輸出.html> --artifact`（不含 doctype 外殼），用 Artifact 工具發布，capabilities `{"db": {}, "user": {}, "downloads": true}`。網頁版多了「送出給 Claude」（寫入 `intakes` 集合，一份一筆，`json` 欄是表單 JSON 字串）；Claude 用 ArtifactData `list intakes` 讀，存成 .json 再跑 `intake_to_config.py`。已發布：https://claude.ai/artifact/2Gx6axft7PTdiGBreH2ytp （私人；給同事用要從頁面的「分享」開權限）。發布的網頁不顯示 confirm／prompt／alert，也不能用 `<a download>`，所以「其他」改成欄位下直接輸入、清空改兩段式按鈕、存檔改用 `downloads` 能力。
    - 表單送來的 JSON 一律視為**沒有確認任何停點**（不沿用 `--base` 範本的 `stops_confirmed`），避免新案套 P33 範本時跳過★停點。
    - 改欄位：改 `make_intake_xlsx.py` 的 `ROWS`，再到 `make_intake_html.py` 的 `W`、`STEPS` 補元件，兩個檔案都重產。
    - 下一階段（待 NAS 管理者啟用 Web Station／反向代理）：表單用同事的 NAS 帳號登入（DSM `SYNO.API.Auth`），送出直接上傳到案件資料夾（`SYNO.FileStation.Upload`）；跨埠的瀏覽器限制要實測。
