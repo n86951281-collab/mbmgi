@@ -64,6 +64,16 @@ python -I scripts/section_drawings.py <case_config.json>
    - `preview_dir`：每張圖一份 PNG，給手機檢視。
 6. 要 DWG 時，用 AutoCAD 的 `accoreconsole.exe` 跑腳本 `FILEDIA 0` → `_.SAVEAS 2018 <路徑>` → `_.QUIT _Y`，路徑要純英文。
 
+## 平面配置圖與縱橫斷面版面規則
+
+設計階段（側溝、排水）的平面配置圖、縱斷面、橫斷面，版面依 CLAUDE.md「四、CAD 與 DXF 圖面 > 側溝、排水工程平面配置圖與縱橫斷面版面」辦理，重點：
+
+- 平面配置圖全線一張 1/500；新設構造物以多重引線標「名稱＋編號＋尺寸＋數量」（#AC1、#A…），附 IP 座標表與主要構造物數量表；引線避開房屋、設計線、其他文字且不交叉；圖例表縮到不壓線不重疊。
+- 縱斷面資料帶：坡度、挖深、地面高、溝頂高、溝底高、樁號、單距；框自資料欄起；流向箭頭平行渠底；集水井標內徑。
+- 橫斷面樁號以中心線 0K+000，自有設施處起切（集水井、交接面、每 20 m）；CL 在框上、樁號在框下置中加底線、面積靠右。
+
+參考實作（P33 東山街案，`共用/地形出圖/cases/P33_新社東山/`）：`plan_view.py`（平面配置、引線避讓、數量表、圖例縮排）、`plan_profile.py`（平面及縱斷面）、`cross_sections.py`（中心線樁號斷面）、`plan_base.py`（`section_cuts()`、樁列與鄰房檢討）。
+
 ## 使用者在 CAD 手調後
 
 使用者回傳 DWG：轉 DXF（`accoreconsole.exe` 跑 `DXFOUT`），和這次輸出的 DXF 逐圖元比對，把差異寫回 `scripts/section_drawings.py` 或樣板，開 PR 更新 mbmgi，並升版號。
