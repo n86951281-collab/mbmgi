@@ -1,0 +1,14 @@
+{
+  "case_name": "【案名】",
+  "case_code": "P00",
+  "site": "【施工地點，例：臺中市新社區】",
+  "out_dir": "D:\\Claude_工作區\\輸出\\【案件資料夾】",
+  "file_prefix": "（桃園）",
+  "title_block": {
+    "agency": "【主辦機關待補】",
+    "project": "【工程名稱待補】"
+  },
+  "plan": {
+    "center_world": [0.0, 0.0]
+  }
+}
