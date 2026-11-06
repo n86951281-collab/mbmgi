@@ -77,6 +77,10 @@ description: 換電腦接續同一案（桃園 llpc-237 ↔ 臺中 llpc-48 ↔ �
 - 臺中 llpc-48 不能用 `\\NAS` 名稱；`C2storagecjec` 也要用 IP：`\\192.168.1.164\C2storagecjec\`（CJ001 是 `\\192.168.1.164\CJ001\`）。桃園 llpc-237 用 `\\NAS\C2storagecjec\`。說明檔要寫收件機那台的寫法。
 - 中文路徑、檔名的輸出直接看主控台會亂碼：先 `Out-File -Encoding utf8` 存檔再讀；兩支腳本都另寫 UTF-8 報告。
 - 送件機本地分支 `feat/ditch-design-drawings` 未提交、未推送，臺中拿不到程式。打包前的 git 檢查就是為了擋這個。
+- 2026-11-06 臺中 → 桃園打包：照本檔範例用 `powershell -File … -MemoryFiles a.md,b.md`，逗號清單被當成一個檔名，記憶只收到 `MEMORY.md`（輸出有「記憶資料夾找不到」）。`-File` 不會把逗號解析成陣列；腳本已改成自己拆逗號，`-File`、`-Command` 兩種呼叫都可以。這個錯是因為寫 SKILL 時沒有照範例原文實跑。
+- 同一次實跑又抓到兩個：
+  - 輸出路徑用 8.3 短檔名（例 `C:\Users\ADMINI~1\...`，Claude 暫存區常見）時，`Resolve-Path` 保留短名、`Get-ChildItem` 回長名，`Substring` 切錯，manifest 相對路徑全錯，還原時 117 個檔都報缺。已改用 `Resolve-Full`（`GetLongPathName` 展開）。
+  - 已合併、遠端分支已刪的本地分支，還原時被誤報「送件機未推送」；現在提交都已在遠端（`unpushed` = 0）的分支不列。
 - 臺中原本只有商店空殼 python，要用 `winget install -e --id Python.Python.3.12 --scope user` 再 pip 裝套件（使用者同意後才裝）。
 - 舊說明檔寫「一律 `python -I`」：`-I` 會把腳本所在資料夾移出 `sys.path`，產生器 `import` 同資料夾模組（例如 `p33_sheet`）就 `ModuleNotFoundError`。產生器不加 `-I`；讀外來檔（NAS、下載）的程式才加。
 - 收件機沒有 git 作者身分，commit 失敗。單次用 `git -c user.name=… -c user.email=… commit`，不改全域設定；要設全域先問。

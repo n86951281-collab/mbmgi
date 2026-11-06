@@ -31,7 +31,22 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Resolve-Full([string]$p) {
+    # 展開 8.3 短檔名（例 ADMINI~1）；否則與 Get-ChildItem 回傳的長檔名長度不同，Substring 算相對路徑會切錯
+    $full = (Resolve-Path -LiteralPath $p).ProviderPath
+    if ($full -like '*~*' -and $full -notlike '\\*') {
+        if (-not ('LongPath.Native' -as [type])) {
+            Add-Type -Namespace LongPath -Name Native -MemberDefinition '[DllImport("kernel32.dll", CharSet = CharSet.Unicode)] public static extern uint GetLongPathName(string s, System.Text.StringBuilder l, uint n);'
+        }
+        $sb = New-Object Text.StringBuilder 1024
+        if ([LongPath.Native]::GetLongPathName($full, $sb, 1024) -gt 0) { $full = $sb.ToString() }
+    }
+    $full
+}
 $env:GIT_TERMINAL_PROMPT = '0'
+# 用 powershell -File 呼叫時，a,b 會變成一整串字串；統一拆開
+$PyPackages = @($PyPackages | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $utf8NoBom = New-Object Text.UTF8Encoding($false)
 $log = New-Object System.Collections.Generic.List[string]
 function Log([string]$s) { $log.Add($s); Write-Host $s }
@@ -55,7 +70,7 @@ $script:Prefix = if ($FilePrefix) { $FilePrefix } else { $autoPrefix }
 if (-not (Test-Path -LiteralPath $PackageDir)) {
     throw "找不到工作包：$PackageDir`n臺中機不能用 \\NAS 名稱，請改用 IP，例如 \\192.168.1.164\C2storagecjec\..."
 }
-$pkg  = (Resolve-Path -LiteralPath $PackageDir).ProviderPath.TrimEnd('\')
+$pkg  = (Resolve-Full $PackageDir).TrimEnd('\')
 $info = Get-Content -LiteralPath (Join-Path $pkg 'handoff_info.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 Log "工作包：$pkg"
 Log "案名：$($info.case_name)　送件機：$($info.machine_label) $($info.machine)　打包：$($info.packed_at)"
@@ -224,7 +239,9 @@ if (Test-Path -LiteralPath (Join-Path $RepoDir '.git')) {
         foreach ($b in @($r.branches)) {
             if ($b.branch -in @('main', 'master') -or $b.branch -like 'worktree-*') { continue }
             $remote = git -C $RepoDir ls-remote --heads origin $b.branch 2>$null
-            if ($remote) { Log "   [有] 遠端分支 $($b.branch)" } else { Log "   [缺] 遠端沒有分支 $($b.branch)（送件機未推送，這台拿不到）" }
+            if ($remote) { Log "   [有] 遠端分支 $($b.branch)" }
+            elseif ($null -ne $b.unpushed -and [int]$b.unpushed -eq 0) { continue }   # 提交都已在遠端（例如已合併、遠端分支已刪），不用拿
+            else { Log "   [缺] 遠端沒有分支 $($b.branch)（送件機未推送，這台拿不到）" }
         }
     }
 } else { Log "   【注意】找不到 mbmgi 倉庫：$RepoDir（先 gh repo clone）" }

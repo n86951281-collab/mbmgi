@@ -40,7 +40,27 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Resolve-Full([string]$p) {
+    # 展開 8.3 短檔名（例 ADMINI~1）；否則與 Get-ChildItem 回傳的長檔名長度不同，Substring 算相對路徑會切錯
+    $full = (Resolve-Path -LiteralPath $p).ProviderPath
+    if ($full -like '*~*' -and $full -notlike '\\*') {
+        if (-not ('LongPath.Native' -as [type])) {
+            Add-Type -Namespace LongPath -Name Native -MemberDefinition '[DllImport("kernel32.dll", CharSet = CharSet.Unicode)] public static extern uint GetLongPathName(string s, System.Text.StringBuilder l, uint n);'
+        }
+        $sb = New-Object Text.StringBuilder 1024
+        if ([LongPath.Native]::GetLongPathName($full, $sb, 1024) -gt 0) { $full = $sb.ToString() }
+    }
+    $full
+}
 $env:GIT_TERMINAL_PROMPT = '0'   # fetch 不跳登入視窗卡住
+
+# 用 powershell -File 呼叫時，a.md,b.md 會變成一整串字串；這裡統一拆開，兩種呼叫方式結果相同。
+function Split-List([string[]]$list) { @($list | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ }) }
+$MemoryFiles    = Split-List $MemoryFiles
+$MemoryKeywords = Split-List $MemoryKeywords
+$ExtraDirs      = Split-List $ExtraDirs
+$Repos          = Split-List $Repos
 $ReadmeName   = '00_說明_先讀這份.md'
 $ManifestName = 'manifest.csv'
 $InfoName     = 'handoff_info.json'
@@ -58,7 +78,7 @@ function Get-MachineLabel {
 
 # ---------- manifest ----------
 function New-Manifest([string]$root) {
-    $rootFull = (Resolve-Path -LiteralPath $root).ProviderPath.TrimEnd('\')
+    $rootFull = (Resolve-Full $root).TrimEnd('\')
     $rows = foreach ($f in Get-ChildItem -LiteralPath $rootFull -Recurse -File | Sort-Object FullName) {
         if ($f.Name -eq $ManifestName -and $f.DirectoryName.TrimEnd('\') -eq $rootFull) { continue }
         [pscustomobject]@{
@@ -74,7 +94,7 @@ function New-Manifest([string]$root) {
 
 function Compare-Manifest([string]$root) {
     # 回傳不符清單（空陣列＝全部相符）
-    $rootFull = (Resolve-Path -LiteralPath $root).ProviderPath.TrimEnd('\')
+    $rootFull = (Resolve-Full $root).TrimEnd('\')
     $rows = Import-Csv -LiteralPath (Join-Path $rootFull $ManifestName) -Encoding UTF8
     $bad = New-Object System.Collections.Generic.List[string]
     $listed = @{}
@@ -98,7 +118,7 @@ function Compare-Manifest([string]$root) {
 # ---------- 上傳階段 ----------
 if ($PSCmdlet.ParameterSetName -eq 'Upload') {
     if (-not $NasDest) { throw '上傳要給 -NasDest（NAS 上的上層資料夾）。' }
-    $pkg = (Resolve-Path -LiteralPath $UploadPackage).ProviderPath.TrimEnd('\')
+    $pkg = (Resolve-Full $UploadPackage).TrimEnd('\')
     $readme = Get-Content -LiteralPath (Join-Path $pkg $ReadmeName) -Raw -Encoding UTF8
     if ($readme -match '【待填】') {
         Write-Warning "說明檔仍有【待填】段落，請先由 Claude 依案件記憶填完再上傳。"
@@ -127,10 +147,10 @@ if (-not $MachineLabel) { $MachineLabel = Get-MachineLabel }
 $now      = Get-Date
 $stamp    = $now.ToString('yyyyMMdd_HHmm')
 $pkgName  = "$MachineLabel${stamp}_${CaseName}_Claude工作包"
-$CaseDir  = (Resolve-Path -LiteralPath $CaseDir).ProviderPath.TrimEnd('\')
-if ($DeliverableDir) { $DeliverableDir = (Resolve-Path -LiteralPath $DeliverableDir).ProviderPath.TrimEnd('\') }
+$CaseDir  = (Resolve-Full $CaseDir).TrimEnd('\')
+if ($DeliverableDir) { $DeliverableDir = (Resolve-Full $DeliverableDir).TrimEnd('\') }
 if (-not (Test-Path -LiteralPath $OutputDir)) { New-Item -ItemType Directory -Force $OutputDir | Out-Null }
-$OutputDir = (Resolve-Path -LiteralPath $OutputDir).ProviderPath.TrimEnd('\')
+$OutputDir = (Resolve-Full $OutputDir).TrimEnd('\')
 $pkg      = Join-Path $OutputDir $pkgName
 if (Test-Path -LiteralPath $pkg) { throw "打包資料夾已存在，不覆蓋：$pkg" }
 $log      = New-Object System.Collections.Generic.List[string]
@@ -300,7 +320,7 @@ if ($DeliverableDir) {
 
 # 6. 其他資料夾
 foreach ($x in $ExtraDirs) {
-    $xs = (Resolve-Path -LiteralPath $x).ProviderPath.TrimEnd('\')
+    $xs = (Resolve-Full $x).TrimEnd('\')
     $xd = Join-Path $pkg ('{0:00}_{1}' -f $idx, (Split-Path $xs -Leaf)); New-Item -ItemType Directory -Force $xd | Out-Null
     $n = Copy-Tree $xs $xd
     Log "其他：$(Split-Path $xd -Leaf) $n 個檔"
