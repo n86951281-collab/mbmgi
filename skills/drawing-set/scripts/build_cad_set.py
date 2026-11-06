@@ -1,7 +1,7 @@
 """P33 設計圖冊 CAD 整合：各圖 DXF 合成一個檔，模型空間每檔一列，每張圖一個 A3 配置（視埠 1:1），供 PUBLISH 連續背景列印。
 使用者 2026-11-06：「cad 整理成一個 cad 檔，用開視埠方式連續表示每張圖面，發布連續後台列印」。
 - 圖紙順序與 merge_set.py 相同（封面＋圖目錄 14 張），配置名「序號_圖號」（純 ASCII，PUBLISH／DSD 不怕編碼）。
-- 頁面設定：DWG To PDF.pc3、ISO full bleed A3 (420×297)、1:1、圖筆 A3-圖筆(黑白).ctb。
+- 頁面設定：DWG To PDF.pc3、ISO full bleed A3 (420×297)、置中出圖、佈滿圖紙、圖筆 A3-圖筆(黑白).ctb（交付時可改全彩）。
 - 視埠：由 make_dsd.py 產生的 AutoCAD 指令檔建立（每配置 -VPORTS 0,0～420,297，ZOOM 中心＋高 297＝1:1），放「視埠」圖層（不列印）。
 - 底圖 IMAGE 參照同資料夾 PNG（相對檔名），DWG 與 PNG 要放同一資料夾。
 用法：python build_cad_set.py --stamp YYYYMMDD_HHMM  → 產出 combined DXF，再以 accoreconsole 另存 DWG 並產生 .dsd
@@ -51,10 +51,13 @@ for name, x0, y0 in sheets:
     lay.page_setup(size=(420, 297), margins=(0, 0, 0, 0), units="mm", offset=(0, 0), rotation=0, scale=(1, 1),   # scale 給整數會被當成標準比例編號
                    name="ISO_full_bleed_A3", device="DWG To PDF.pc3")                                                # 名稱自動補「_(420.00_x_297.00_MM)」
     lay.dxf.current_style_sheet = "A3-圖筆(黑白).ctb"
+    L_ = lay.dxf_layout.dxf                                            # 使用者 2026-11-06：置中出圖＋佈滿圖紙
+    L_.plot_layout_flags = (L_.plot_layout_flags | 4 | 16)             # 4＝置中、16＝使用標準比例
+    L_.standard_scale_type = 0                                         # 0＝佈滿圖紙（Scaled to Fit）
     # 視埠由 AutoCAD 建立（ezdxf 建的視埠在 AutoCAD 出圖時不顯示模型內容，2026-11-06 實測），見 cad_set_dwg.scr
 for nm in [l.name for l in doc.layouts if l.name not in ("Model",) and l.name not in [s[0] for s in sheets]]:
     doc.layouts.delete(nm)
-out = os.path.join(OUT, f"{PRE}{stamp}_A3_設計圖冊_CAD整合_v1.5_TWD97_GENIE.dxf")
+out = os.path.join(OUT, f"{PRE}{stamp}_A3_設計圖冊_CAD整合_v1.7_TWD97_GENIE.dxf")
 if os.path.exists(out): sys.exit(f"{out} 已存在，不覆蓋")
 doc.saveas(out)
 json.dump([list(s_) for s_ in sheets], open(os.path.join(HERE, "cad_set_layouts.json"), "w", encoding="utf-8"), ensure_ascii=False)

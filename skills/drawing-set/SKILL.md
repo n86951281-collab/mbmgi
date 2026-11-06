@@ -45,6 +45,7 @@ description: 設計圖冊組圖與出圖：A3 圖紙元件（圖框、多重引�
 
 ## 踩過的雷（2026-11-06 實測）
 - ezdxf `page_setup(scale=1)` 會被當成「標準比例第 1 號」（1/128"=1'），要寫 `scale=(1, 1)`。
+- 置中與佈滿：`page_setup` 之後再設 `dxf_layout.dxf.plot_layout_flags |= 4 | 16`（4＝置中、16＝使用標準比例），以及 `standard_scale_type = 0`（佈滿圖紙）。用無邊界 A3 發布時跟 1:1 看起來一樣，換成有邊界的印表機才看得出差別。
 - `page_setup` 的 `name` 只給 `ISO_full_bleed_A3`，程式會自動補「_(420.00_x_297.00_MM)」；給全名會重複一段。
 - ezdxf 建的 VIEWPORT 在主控台出圖時不顯示模型內容，所以改由 AutoCAD 指令檔 `-VPORTS 0,0 420,297` 建視埠。
 - 建視埠前要先在圖紙空間 `ZOOM W -10,-10 430,307`，不然 `MSPACE` 會回「沒有作用中的模型空間視埠」。
