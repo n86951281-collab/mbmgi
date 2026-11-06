@@ -64,6 +64,10 @@ python -I scripts/section_drawings.py <case_config.json>
    - `preview_dir`：每張圖一份 PNG，給手機檢視。
 6. 要 DWG 時，用 AutoCAD 的 `accoreconsole.exe` 跑腳本 `FILEDIA 0` → `_.SAVEAS 2018 <路徑>` → `_.QUIT _Y`，路徑要純英文。
 
+## 設計圖冊（平面配置、平縱斷面、橫斷面、標準圖）
+
+設計階段的圖冊版面與標註依 CLAUDE.md「四、CAD 與 DXF 圖面 > 設計圖冊版面與標註規則 v2」辦理；組圖、引用他機關標準圖、封面、PDF 合併、CAD 整合發布的程式與步驟見 SKILL `drawing-set`。
+
 ## 使用者在 CAD 手調後
 
 使用者回傳 DWG：轉 DXF（`accoreconsole.exe` 跑 `DXFOUT`），和這次輸出的 DXF 逐圖元比對，把差異寫回 `scripts/section_drawings.py` 或樣板，開 PR 更新 mbmgi，並升版號。
